@@ -1,0 +1,5 @@
+{
+  "name": "Village Energy Sentinel",
+  "description": "Rural renewable energy fault reporting and predictive maintenance dashboard.",
+  "requestFramePermissions": ["geolocation"]
+}
