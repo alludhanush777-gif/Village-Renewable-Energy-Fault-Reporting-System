@@ -43,8 +43,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       console.log("Sentinel Authenticated Locally (Demo Mode)");
       const userData: UserIdentity = { 
         uid: 'SNTNL-001',
-        fullName: "Commander Allu", 
-        role: "ADMIN" as UserRole,
+        fullName: "Dhanush Allu", 
+        role: "Lead Commander" as UserRole,
         village: "Sentinel HQ", 
         district: "Southern Rift",
         phone: "555-0199", 

@@ -51,7 +51,7 @@ export interface ImpactWeights {
   priorityUserFactor: number; // e.g., multiplier for health clinics or schools
 }
 
-export type UserRole = 'Villager' | 'Technician' | 'Admin' | 'Developer';
+export type UserRole = 'Villager' | 'Technician' | 'Admin' | 'Developer' | 'Lead Commander';
 
 export interface UserIdentity {
   uid: string;

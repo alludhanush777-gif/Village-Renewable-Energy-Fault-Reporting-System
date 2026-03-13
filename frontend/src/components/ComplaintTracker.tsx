@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import { ComplaintReport } from '../types';
 import { GlassCard } from './GlassCard';
+import { useLanguage } from '../contexts/LanguageContext';
 
 interface ComplaintTrackerProps {
   onBack: () => void;
@@ -93,6 +94,7 @@ const MOCK_REPORTS: ComplaintReport[] = [
 ];
 
 export const ComplaintTracker: React.FC<ComplaintTrackerProps> = ({ onBack }) => {
+  const { t } = useLanguage();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
@@ -142,10 +144,10 @@ export const ComplaintTracker: React.FC<ComplaintTrackerProps> = ({ onBack }) =>
           </button>
           <div>
             <h1 className="text-xl font-black tracking-tighter uppercase">
-              {selectedId ? 'Ticket Details' : 'Complaint Tracker'}
+              {selectedId ? t('ticketDetails') : t('trackComplaints')}
             </h1>
             <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">
-              {selectedId ? `ID: ${selectedId}` : 'Track your reports'}
+              {selectedId ? `ID: ${selectedId}` : t('trackReports')}
             </p>
           </div>
         </div>
@@ -166,7 +168,7 @@ export const ComplaintTracker: React.FC<ComplaintTrackerProps> = ({ onBack }) =>
                 <Search className="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500 group-focus-within:text-[#00A86B] transition-colors" />
                 <input 
                   type="text"
-                  placeholder="Search by Ticket ID or Category..."
+                  placeholder={t('searchPlaceholder')}
                   value={searchQuery}
                   onChange={e => setSearchQuery(e.target.value)}
                   className="w-full bg-white/5 border border-white/10 rounded-2xl py-5 pl-16 pr-6 text-sm focus:border-[#00A86B]/50 outline-none transition-all"
@@ -222,7 +224,7 @@ export const ComplaintTracker: React.FC<ComplaintTrackerProps> = ({ onBack }) =>
                 {filteredReports.length === 0 && (
                   <div className="text-center py-12">
                     <Search className="w-12 h-12 text-gray-700 mx-auto mb-4" />
-                    <p className="text-gray-500 font-bold uppercase text-xs tracking-widest">No reports found</p>
+                    <p className="text-gray-500 font-bold uppercase text-xs tracking-widest">{t('noReports')}</p>
                   </div>
                 )}
               </div>
@@ -244,7 +246,7 @@ export const ComplaintTracker: React.FC<ComplaintTrackerProps> = ({ onBack }) =>
                   <h2 className={`text-2xl font-black uppercase tracking-tighter ${getStatusColor(selectedReport!.status)}`}>
                     {selectedReport!.status.replace('_', ' ')}
                   </h2>
-                  <p className="text-gray-500 text-[10px] font-bold uppercase tracking-widest mt-1">Status Updated: 12 mins ago</p>
+                  <p className="text-gray-500 text-[10px] font-bold uppercase tracking-widest mt-1">{t('statusUpdated')}: 12 mins ago</p>
                 </div>
                 <div className="h-2 bg-white/5 rounded-full overflow-hidden max-w-xs mx-auto">
                   <motion.div 
@@ -258,7 +260,7 @@ export const ComplaintTracker: React.FC<ComplaintTrackerProps> = ({ onBack }) =>
               {/* Details Grid */}
               <div className="grid grid-cols-1 gap-6">
                 <section className="space-y-4">
-                  <h3 className="text-[10px] font-black text-gray-500 uppercase tracking-[0.2em] ml-2">Issue Summary</h3>
+                  <h3 className="text-[10px] font-black text-gray-500 uppercase tracking-[0.2em] ml-2">{t('issueSummary')}</h3>
                   <GlassCard className="p-6 space-y-4">
                     <div className="flex items-center gap-4">
                       <div className="p-4 bg-red-500/10 rounded-2xl">
@@ -276,7 +278,7 @@ export const ComplaintTracker: React.FC<ComplaintTrackerProps> = ({ onBack }) =>
                 </section>
 
                 <section className="space-y-4">
-                  <h3 className="text-[10px] font-black text-gray-500 uppercase tracking-[0.2em] ml-2">Hardware Context</h3>
+                  <h3 className="text-[10px] font-black text-gray-500 uppercase tracking-[0.2em] ml-2">{t('hardwareContext')}</h3>
                   <div className="grid grid-cols-2 gap-4">
                     <GlassCard className="p-4">
                       <Zap className="w-5 h-5 text-amber-500 mb-2" />
@@ -292,7 +294,7 @@ export const ComplaintTracker: React.FC<ComplaintTrackerProps> = ({ onBack }) =>
                 </section>
 
                 <section className="space-y-4">
-                  <h3 className="text-[10px] font-black text-gray-500 uppercase tracking-[0.2em] ml-2">Timeline</h3>
+                  <h3 className="text-[10px] font-black text-gray-500 uppercase tracking-[0.2em] ml-2">{t('timeline')}</h3>
                   <div className="space-y-4 relative before:absolute before:left-6 before:top-0 before:bottom-0 before:w-px before:bg-white/5">
                     {[
                       { label: 'Report Received', time: '10:30 AM', desc: 'System logged the fault and notified technicians.', done: true },
@@ -320,7 +322,7 @@ export const ComplaintTracker: React.FC<ComplaintTrackerProps> = ({ onBack }) =>
 
               {/* Action */}
               <button className="w-full py-6 bg-white/5 border border-white/10 rounded-2xl font-black uppercase tracking-widest flex items-center justify-center gap-3 hover:bg-white/10 transition-all">
-                <MessageSquare className="w-5 h-5 text-[#00A86B]" /> Contact Support
+                <MessageSquare className="w-5 h-5 text-[#00A86B]" /> {t('contactSupport')}
               </button>
             </motion.div>
           )}
