@@ -10,6 +10,10 @@ import {
 import { reporterService } from '../services/reporterService';
 import { useNavigation } from '../contexts/NavigationContext';
 import { useLanguage } from '../contexts/LanguageContext';
+import { useAuth } from '../contexts/AuthContext';
+import { socketService } from '../services/socketService';
+import { dataLifecycle } from '../services/dataLifecycle';
+import { FaultType, RawFaultReport, UserMetadata } from '../types';
 
 // Import Sub-components
 import { PersonalInfoStep } from './reporter/PersonalInfoStep';
@@ -32,6 +36,7 @@ export const SentinelReporter: React.FC<SentinelReporterProps> = ({ onBack }) =>
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [ticketId, setTicketId] = useState<string | null>(null);
   const { teamStatus, setTeamStatus } = useNavigation();
+  const { user } = useAuth();
 
   // Form State
   const [profile, setProfile] = useState<VillagerProfile>({
@@ -82,6 +87,17 @@ export const SentinelReporter: React.FC<SentinelReporterProps> = ({ onBack }) =>
   const nextStep = () => setStep(s => s + 1);
   const prevStep = () => setStep(s => s - 1);
 
+  const categoryToFaultType = (cat: ComplaintCategory): FaultType => {
+    switch (cat) {
+      case 'NO_POWER': return 'GRID FAILURE';
+      case 'PANEL_DAMAGE':
+      case 'BATTERY_ISSUE':
+      case 'INVERTER_FAULT':
+      case 'OVERHEATING': return 'PREDICTIVE ALERT';
+      default: return 'LOCALIZED ISSUE';
+    }
+  };
+
   const handleSubmit = async () => {
     setIsSubmitting(true);
     const steps = [
@@ -97,28 +113,40 @@ export const SentinelReporter: React.FC<SentinelReporterProps> = ({ onBack }) =>
     }
 
     try {
-      // Create backend fault report
-      const response = await fetch('http://localhost:5000/api/faults', {
-        method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('sentinel_auth_token')}`
-        },
-        body: JSON.stringify({
-          villageID: profile.village,
-          description: issue.description,
-          location: {
-            type: 'Point',
-            coordinates: [34.5, 3.2] // Static for now or GPS if enabled
-          },
-          images: photo ? [photo] : [],
-          voiceNote: audio,
-          riskLevel: severityToRisk(issue.severity)
-        })
+      const faultType = categoryToFaultType(issue.category);
+      
+      // 1. Prepare Data for Lifecycle
+      const rawReport: RawFaultReport = {
+        reportId: `REP-${Math.random().toString(36).substr(2, 5).toUpperCase()}`,
+        userId: user?.uid || 'GUEST',
+        gps: { lat: -1.2921, lng: 36.8219 }, // Default or from context
+        category: faultType,
+        mediaPayload: { photoUrls: photo ? [photo] : [] },
+        timestamp: Date.now()
+      };
+
+      const userMetadata: UserMetadata = {
+        userId: user?.uid || 'GUEST',
+        trustScore: user?.trustScore || 1.0,
+        villageProfile: profile.village || 'Unknown Village',
+        hardwareDNA: {
+          inverterModel: solar.inverterModel,
+          batteryModel: 'Standard LFP', // Default or from context
+          criticalLoad: 'Residential' // Default
+        }
+      };
+
+      // 2. Ingest into Lifecycle
+      const ticket = await dataLifecycle.ingestReport(rawReport, userMetadata);
+      
+      // 3. Emit via Socket to update Priority Feed
+      socketService.emit({
+        type: 'NEW_TICKET',
+        payload: ticket,
+        event: 'NEW_PRIORITY_ALERT'
       });
 
-      const data = await response.json();
-      setTicketId(data._id);
+      setTicketId(ticket.id);
       setStep(9); // Success step
     } catch (error) {
       console.error(error);

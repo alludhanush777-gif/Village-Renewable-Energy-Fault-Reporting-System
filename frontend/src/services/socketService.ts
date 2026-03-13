@@ -20,6 +20,10 @@ class SocketService {
     };
   }
 
+  emit(message: any) {
+    this.handlers.forEach(h => h(message));
+  }
+
   private startSimulation() {
     console.log('Starting Sentinel Data Lifecycle simulation...');
     this.interval = setInterval(async () => {

@@ -169,6 +169,9 @@ function AppContent() {
       if (message.type === 'NEW_TICKET') {
         setTickets(prev => [message.payload, ...prev].sort((a, b) => b.priorityScore - a.priorityScore));
       }
+      if (message.type === 'TICKET_UPDATED') {
+        setTickets(prev => prev.map(t => t.id === message.payload.id ? message.payload : t));
+      }
     });
     return () => {
       if (unsubscribe) unsubscribe();

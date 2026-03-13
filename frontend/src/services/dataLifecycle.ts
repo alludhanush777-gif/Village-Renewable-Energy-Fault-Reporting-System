@@ -107,7 +107,13 @@ class DataLifecycleEngine {
         ticket.sensorStatus = 'Critical';
         console.log(`[Verification] Ticket ${ticketId} SENSOR VERIFIED`);
         
-        // In a real app, this would broadcast via WebSocket
+        // Broadcast update via Socket
+        const { socketService } = require('./socketService');
+        socketService.emit({
+          type: 'TICKET_UPDATED',
+          payload: ticket,
+          event: 'SENSOR_VERIFIED'
+        });
       }
     }, 3000);
   }
