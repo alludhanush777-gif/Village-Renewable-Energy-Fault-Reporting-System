@@ -8,7 +8,7 @@ interface GlassCardProps {
 
 export const GlassCard: React.FC<GlassCardProps> = ({ children, className }) => (
   <div className={cn(
-    "backdrop-blur-md bg-white/5 border border-white/10 rounded-2xl",
+    "backdrop-blur-md bg-[var(--sentinel-card-bg)] border border-[var(--sentinel-border)] rounded-2xl transition-colors duration-300",
     className
   )}>
     {children}

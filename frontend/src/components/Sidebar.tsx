@@ -36,7 +36,7 @@ export const Sidebar: React.FC = () => {
     <motion.aside
       initial={false}
       animate={{ width: isCollapsed ? 80 : 280 }}
-      className="h-screen bg-[#0A0A0A] border-r border-white/5 flex flex-col sticky top-0 z-[60]"
+      className="h-screen bg-[var(--sentinel-bg)] border-r border-[var(--sentinel-border)] flex flex-col sticky top-0 z-[60] transition-colors duration-300"
     >
       {/* Sidebar Header */}
       <div className="p-6 flex items-center justify-between overflow-hidden whitespace-nowrap">
@@ -50,7 +50,7 @@ export const Sidebar: React.FC = () => {
                 initial={{ opacity: 0, x: -10 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -10 }}
-                className="text-lg font-black tracking-tighter text-white"
+                className="text-lg font-black tracking-tighter text-[var(--sentinel-text)]"
               >
                 SENTINEL
               </motion.span>
@@ -78,7 +78,7 @@ export const Sidebar: React.FC = () => {
               className={`w-full flex items-center gap-4 p-4 rounded-2xl transition-all group relative ${
                 isActive 
                   ? 'bg-[#00A86B]/10 text-[#00A86B]' 
-                  : 'text-gray-500 hover:bg-white/5 hover:text-white'
+                  : 'text-[var(--sentinel-text-dim)] hover:bg-[var(--sentinel-glass)] hover:text-[var(--sentinel-text)]'
               }`}
             >
               <Icon className={`w-6 h-6 shrink-0 ${isActive ? 'text-[#00A86B]' : 'group-hover:scale-110 transition-transform'}`} />
@@ -101,7 +101,7 @@ export const Sidebar: React.FC = () => {
       </nav>
 
       {/* System Health / Footer */}
-      <div className="p-6 border-t border-white/5">
+      <div className="p-6 border-t border-[var(--sentinel-border)]">
         <div className={`flex items-center gap-4 ${isCollapsed ? 'justify-center' : ''}`}>
           <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse shrink-0" />
           {!isCollapsed && (

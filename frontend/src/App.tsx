@@ -59,6 +59,7 @@ import { SettingsView } from './components/SettingsView';
 import { TechnicianDashboard } from './components/TechnicianDashboard';
 import { InventoryView } from './components/InventoryView';
 import { AnalyticsView } from './components/AnalyticsView';
+import { ThemeProvider, useTheme } from './contexts/ThemeContext';
 
 // --- Types ---
 // ViewState type moved to NavigationContext
@@ -269,10 +270,10 @@ function AppContent() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0A0A0A] text-white font-sans selection:bg-[#00A86B]/30 flex">
+    <div className="min-h-screen bg-[var(--sentinel-bg)] text-[var(--sentinel-text)] font-sans selection:bg-[#00A86B]/30 flex transition-colors duration-300">
       <Sidebar />
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
-        <header className="border-b border-white/5 px-8 py-4 flex justify-between items-center sticky top-0 bg-[#0A0A0A]/80 backdrop-blur-xl z-50">
+        <header className="border-b border-[var(--sentinel-border)] px-8 py-4 flex justify-between items-center sticky top-0 bg-[var(--sentinel-bg)]/80 backdrop-blur-xl z-50 transition-colors duration-300">
           <div className="flex items-center gap-8">
             <div className="flex items-center gap-2">
               <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
@@ -312,10 +313,12 @@ function AppContent() {
 
 export default function App() {
   return (
-    <LanguageProvider>
-      <AuthProvider>
-        <AppContent />
-      </AuthProvider>
-    </LanguageProvider>
+    <ThemeProvider>
+      <LanguageProvider>
+        <AuthProvider>
+          <AppContent />
+        </AuthProvider>
+      </LanguageProvider>
+    </ThemeProvider>
   );
 }

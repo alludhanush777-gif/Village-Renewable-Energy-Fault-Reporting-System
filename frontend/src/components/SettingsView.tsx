@@ -4,9 +4,11 @@ import { ThresholdEngine } from './ThresholdEngine';
 import { useLanguage } from '../contexts/LanguageContext';
 import { Moon, Sun, Globe, ShieldCheck } from 'lucide-react';
 import { GlassCard } from './GlassCard';
+import { useTheme } from '../contexts/ThemeContext';
 
 export const SettingsView: React.FC = () => {
   const { language, setLanguage } = useLanguage();
+  const { theme, toggleTheme } = useTheme();
 
   return (
     <div className="p-8 max-w-6xl mx-auto space-y-12 pb-20">
@@ -58,14 +60,28 @@ export const SettingsView: React.FC = () => {
               <Sun className="w-5 h-5 text-[#00A86B]" />
               Interface Theme
             </h3>
-            <div className="flex bg-white/5 p-2 rounded-2xl border border-white/5">
-              <button className="flex-1 flex items-center justify-center gap-2 py-3 bg-[#111] border border-white/10 rounded-xl text-[10px] font-black uppercase tracking-widest text-[#00A86B]">
+            <div className="flex bg-[var(--sentinel-glass)] p-2 rounded-2xl border border-[var(--sentinel-border)]">
+              <button 
+                onClick={() => theme === 'light' && toggleTheme()}
+                className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${
+                  theme === 'dark' 
+                    ? 'bg-[#111] border border-white/10 text-[#00A86B]' 
+                    : 'text-gray-500 hover:text-white'
+                }`}
+              >
                 <Moon className="w-4 h-4" />
                 Sentinel Dark
               </button>
-              <button disabled className="flex-1 flex items-center justify-center gap-2 py-3 text-gray-600 text-[10px] font-black uppercase tracking-widest cursor-not-allowed">
+              <button 
+                onClick={() => theme === 'dark' && toggleTheme()}
+                className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${
+                  theme === 'light' 
+                    ? 'bg-white border border-black/5 text-[#00A86B] shadow-sm' 
+                    : 'text-gray-500 hover:text-white'
+                }`}
+              >
                 <Sun className="w-4 h-4" />
-                Light (Disabled)
+                Light Mode
               </button>
             </div>
           </GlassCard>
