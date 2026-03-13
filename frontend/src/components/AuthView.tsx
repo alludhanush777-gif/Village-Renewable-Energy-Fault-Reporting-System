@@ -16,7 +16,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin }) => {
   const [mode, setMode] = useState<AuthMode>('signup');
   const [showPassword, setShowPassword] = useState(false);
   const { showToast } = useToast();
-  const { login } = useAuth();
+  const { login, register } = useAuth();
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -34,43 +34,29 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin }) => {
     window.location.href = smsUrl;
   };
 
-  const validateAndSubmit = (e: React.FormEvent) => {
+  const validateAndSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    const sanitizedPassword = formData.password.trim();
-    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
-    
-    if (!passwordRegex.test(sanitizedPassword)) {
-      showToast("Password must be at least 8 characters and include uppercase, lowercase, number, and special character", "error");
-      return;
+    try {
+      if (mode === 'signin') {
+        await login(formData.email, formData.password);
+        showToast(`Welcome back, Commander!`, "success");
+      } else {
+        // Registration Logic
+        await register({
+          name: `${formData.firstName} ${formData.lastName}`,
+          email: formData.email,
+          phone: formData.phone,
+          password: formData.password,
+          village: formData.village || 'Omo Valley',
+          role: formData.role === 'Technician' ? 'TECHNICIAN' : formData.role === 'Admin' ? 'ADMIN' : 'REPORTER'
+        });
+        showToast("Sentinel Account Created Successfully!", "success");
+      }
+      onLogin();
+    } catch (err: any) {
+      showToast(err.message || "Authentication Breach Detected", "error");
     }
-    
-    if (!/^\+?\d{10,15}$/.test(formData.phone.trim())) {
-      showToast("Invalid phone number format", "error");
-      return;
-    }
-    
-    const sanitizedFirstName = formData.firstName.trim();
-    const sanitizedLastName = formData.lastName.trim();
-    const sanitizedEmail = formData.email.trim().toLowerCase();
-    const sanitizedVillage = formData.village.trim();
-    
-    // Identity Persistence Layer: Map captured data to UserIdentity
-    login({
-      uid: `USR-${Math.random().toString(36).substr(2, 9)}`,
-      fullName: `${formData.firstName} ${formData.lastName}`,
-      email: formData.email,
-      phone: formData.phone,
-      village: formData.village || 'Omo Valley',
-      district: 'Turkana',
-      role: formData.role,
-      trustScore: 85,
-      credits: 120,
-      status: 'online'
-    });
-
-    showToast(`Welcome back, ${formData.firstName || 'Commander'}!`, "success");
-    onLogin();
   };
 
   return (

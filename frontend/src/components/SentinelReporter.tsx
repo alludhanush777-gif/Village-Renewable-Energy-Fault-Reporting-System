@@ -9,6 +9,7 @@ import {
 } from '../types';
 import { reporterService } from '../services/reporterService';
 import { useNavigation } from '../contexts/NavigationContext';
+import { useLanguage } from '../contexts/LanguageContext';
 
 // Import Sub-components
 import { PersonalInfoStep } from './reporter/PersonalInfoStep';
@@ -26,6 +27,7 @@ interface SentinelReporterProps {
 }
 
 export const SentinelReporter: React.FC<SentinelReporterProps> = ({ onBack }) => {
+  const { t } = useLanguage();
   const [step, setStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [ticketId, setTicketId] = useState<string | null>(null);
@@ -74,7 +76,8 @@ export const SentinelReporter: React.FC<SentinelReporterProps> = ({ onBack }) =>
     1: '', 2: '', 3: '', 4: '', 5: '', 6: '', 7: '', 8: ''
   });
 
-  const [isRecording, setIsRecording] = useState(false);
+  const [photo, setPhoto] = useState<string | null>(null);
+  const [audio, setAudio] = useState<string | null>(null);
 
   const nextStep = () => setStep(s => s + 1);
   const prevStep = () => setStep(s => s - 1);
@@ -94,20 +97,28 @@ export const SentinelReporter: React.FC<SentinelReporterProps> = ({ onBack }) =>
     }
 
     try {
-      const report = await reporterService.submitFault({
-        profile,
-        solarSystem: solar,
-        category: issue.category,
-        severity: issue.severity,
-        startTime: issue.startTime,
-        frequency: issue.frequency,
-        description: issue.description,
-        appliances: issue.appliances,
-        stepNotes,
-        userId: 'USR-777',
-        villageId: 'VIL-OMO',
+      // Create backend fault report
+      const response = await fetch('http://localhost:5000/api/faults', {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('sentinel_auth_token')}`
+        },
+        body: JSON.stringify({
+          villageID: profile.village,
+          description: issue.description,
+          location: {
+            type: 'Point',
+            coordinates: [34.5, 3.2] // Static for now or GPS if enabled
+          },
+          images: photo ? [photo] : [],
+          voiceNote: audio,
+          riskLevel: severityToRisk(issue.severity)
+        })
       });
-      setTicketId(report.id);
+
+      const data = await response.json();
+      setTicketId(data._id);
       setStep(9); // Success step
     } catch (error) {
       console.error(error);
@@ -115,6 +126,12 @@ export const SentinelReporter: React.FC<SentinelReporterProps> = ({ onBack }) =>
       setIsSubmitting(false);
       setTeamStatus(null);
     }
+  };
+
+  const severityToRisk = (sev: SeverityLevel) => {
+    if (sev === 'CRITICAL') return 'CRITICAL';
+    if (sev === 'MEDIUM') return 'MEDIUM';
+    return 'LOW';
   };
 
   const renderStepNotes = (stepNum: number) => (
@@ -162,7 +179,13 @@ export const SentinelReporter: React.FC<SentinelReporterProps> = ({ onBack }) =>
           />
         );
       case 7:
-        return <EvidenceStep isRecording={isRecording} setIsRecording={setIsRecording} nextStep={nextStep} prevStep={prevStep} renderStepNotes={renderStepNotes} />;
+        return (
+          <EvidenceStep 
+            photo={photo} setPhoto={setPhoto}
+            audio={audio} setAudio={setAudio}
+            nextStep={nextStep} prevStep={prevStep} renderStepNotes={renderStepNotes} 
+          />
+        );
       case 8:
         return (
           <ReviewStep 
@@ -186,7 +209,7 @@ export const SentinelReporter: React.FC<SentinelReporterProps> = ({ onBack }) =>
             <ArrowLeft className="w-6 h-6" />
           </button>
           <div>
-            <h1 className="text-xl font-black tracking-tighter uppercase">Sentinel Reporter</h1>
+            <h1 className="text-xl font-black tracking-tighter uppercase">{t('reporter')}</h1>
             <div className="flex items-center gap-2">
               <span className="w-2 h-2 bg-emerald-500 rounded-full" />
               <p className="text-[10px] text-emerald-500 font-bold uppercase tracking-widest">Village Link Active</p>
@@ -204,9 +227,9 @@ export const SentinelReporter: React.FC<SentinelReporterProps> = ({ onBack }) =>
         </AnimatePresence>
       </main>
       <footer className="p-8 border-t border-white/5 text-center">
-        <p className="text-[10px] font-bold text-gray-600 uppercase tracking-[0.2em] mb-4">No Internet? No Problem.</p>
+        <p className="text-[10px] font-bold text-gray-600 uppercase tracking-[0.2em] mb-4">{t('offline')}</p>
         <button className="px-6 py-3 bg-white/5 border border-white/10 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-white/10 transition-all">
-          Send via SMS Fallback
+          {t('smsFallback')}
         </button>
       </footer>
     </div>

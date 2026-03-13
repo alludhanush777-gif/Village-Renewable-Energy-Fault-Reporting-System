@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 
-export type ViewState = 'auth' | 'dashboard' | 'geospatial' | 'ai-assistant' | 'reporter' | 'tracker';
+export type ViewState = 'auth' | 'dashboard' | 'geospatial' | 'ai-assistant' | 'reporter' | 'tracker' | 'technicians' | 'inventory' | 'analytics' | 'settings';
 
 interface TeamStatus {
   role: string;
